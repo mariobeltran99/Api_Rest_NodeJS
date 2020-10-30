@@ -11,10 +11,10 @@ app.use(bodyParser.json());
 
 //MySQL
 const connection = mysql.createConnection({
-    host: 'sql3.freemysqlhosting.net',
-    user: 'sql3372248',
-    password: 'yCYH9Q6iB1',
-    database: 'sql3372248'
+    host: 'us-cdbr-east-02.cleardb.com',
+    user: 'b50996897e29fa',
+    password: 'd32fe828',
+    database: 'heroku_55f48c258b2b7b1'
 });
 //Route
 app.get('/',(req, res) =>{
