@@ -10,7 +10,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 //MySQL
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
+    connectionLimit: 0,
     host: 'us-cdbr-east-02.cleardb.com',
     user: 'b50996897e29fa',
     password: 'd32fe828',
@@ -23,51 +24,17 @@ app.get('/',(req, res) =>{
 
 //all products
 app.get('/products',(req,res) =>{
-    const sql = 'SELECT * FROM products';
-    connection.query(sql, (err, result)=>{
-        if(err) throw err;
-        if(result.length > 0){
-            res.json(result);
-        }else{
-            res.send('Empty');
-        }
+    pool.getConnection(function (err, connection){
+        const sql = 'SELECT * FROM products';
+        connection.query(sql, (err, result)=>{
+            if(err) throw err;
+            if(result.length > 0){
+                res.json(result);
+                connection.release();
+            }else{
+                res.send('Empty');
+            }
+        });
     });
 });
-
-app.post('/add',(req, res) =>{
-    const sql = 'INSERT INTO products SET ?';
-    const productObj = {
-        name: req.body.name,
-        existence: req.body.existence
-    }
-    connection.query(sql, productObj, err => {
-        if(err) throw err;
-        res.send('product created!');
-    });
-});
-
-app.put('/update/:id',(req,res)=>{
-    const { id } = req.params;
-    const { name, existence } = req.body;
-    const sql = `UPDATE products SET name = '${name}', existence='${existence}' WHERE id=${id}`;
-    connection.query(sql, err => {
-        if(err) throw err;
-        res.send('product updated!');
-    });
-});
-
-app.delete('/delete/:id',(req,res)=>{
-    const { id } = req.params;
-    const sql = `DELETE FROM products WHERE id=${id}`;
-    connection.query(sql, err => {
-        if(err) throw err;
-        res.send('product deleted!');
-    });
-});
-
-connection.connect(ex => {
-    if(ex) throw ex;
-    console.log('Database server running!');
-});
-
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
